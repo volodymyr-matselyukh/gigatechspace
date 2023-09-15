@@ -1,3 +1,3 @@
 export const getComponentNameById = (id: number) => {
-	return `Component ${id + 1}`;
+	return `Toggle ${id + 1}`;
 }

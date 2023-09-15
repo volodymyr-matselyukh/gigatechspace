@@ -1,8 +1,14 @@
-import { useEffect, useState } from "react";
+import { createContext, useEffect, useState } from "react";
 import "../styles/main.css";
 import TogglesBar from "./TogglesBar";
 import Letter from "./Letter";
 import { getComponentNameById } from "../utils/cardNameUtil";
+
+export interface BarContextType {
+	onToggle: (id: number, checked: boolean) => void;
+}
+
+export const BarContext = createContext<BarContextType | null>(null);
 
 function App() {
 	const [activeToggles, setActiveToggles] = useState<number[]>([]);
@@ -10,7 +16,7 @@ function App() {
 	const onToggle = (id: number, checked: boolean) => {
 		const shouldBeAddedToActiveList =
 			checked && !activeToggles.includes(id);
-			
+
 		if (shouldBeAddedToActiveList) {
 			setActiveToggles((prev: number[]) => [...prev, id]);
 
@@ -31,7 +37,13 @@ function App() {
 
 	return (
 		<div className="container">
-			<TogglesBar onToggle={onToggle} />
+
+			<BarContext.Provider value={{onToggle}}>
+				<TogglesBar />
+			</BarContext.Provider>
+
+			<hr className="line" />
+
 			<div className="deck">
 				{activeToggles.map((id) => (
 					<Letter key={`toggle${id}`} id={id} 

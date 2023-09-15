@@ -7,7 +7,7 @@ type Props = {
 };
 
 const useContentGenerator = ({id}: Props) => {
-	const missingLetterChar = "_";
+	const missingLetterChar = "*";
 	const [letters, setLetters] = useState<string[]>([]);
 
 	const lastLetterIndex = useRef<number | null>();
@@ -21,7 +21,7 @@ const useContentGenerator = ({id}: Props) => {
 				const response: LetterResponse = await requests.get(
 					`/letters/${id}`
 				);
-				console.log(response);
+				console.log(`response for toggle ${id}`, response);
 				
 				fillGapIfNeeded(response.letter_index);
 

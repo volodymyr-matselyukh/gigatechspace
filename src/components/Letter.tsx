@@ -11,7 +11,9 @@ const Letter = ({ id, name }: Props) => {
 	return <div className="card">
 		<span className="card__name">{name}</span>
 
-		<span>{letters.join('')}</span>
+		<hr className="card__line"/>
+
+		<span className="card__content">{letters.join('')}</span>
 	</div>;
 };
 export default Letter;
