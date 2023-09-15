@@ -35,11 +35,11 @@ const useContentGenerator = ({id}: Props) => {
 					{
 						const newArray = [...prev, response.letter];
 						
-						return newArray.slice(-30);
+						return getSlicedArray(newArray);
 					});
 			}catch(e){
-				console.log("error", e);
-				setLetters(prev => [...prev, missingLetterChar]);
+				console.error("error", e);
+				setLetters(prev => getSlicedArray([...prev, missingLetterChar]));
 			}
 			
 		}, 2000);
@@ -51,6 +51,10 @@ const useContentGenerator = ({id}: Props) => {
 		};
 	}, []);
 
+	const getSlicedArray = (arr: string[]) => {
+		return arr.slice(-30);
+	}
+	
 	const fillGapIfNeeded = (last_letter_index: number) => {
 		if(lastLetterIndex.current && lastLetterIndex.current + 1 < last_letter_index)
 		{
