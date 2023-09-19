@@ -6,12 +6,20 @@ import { getComponentNameById } from "../utils/cardNameUtil";
 
 export interface BarContextType {
 	onToggle: (id: number, checked: boolean) => void;
+	eightContent: string;
+	onLetterAdd: any
 }
 
 export const BarContext = createContext<BarContextType | null>(null);
 
 function App() {
 	const [activeToggles, setActiveToggles] = useState<number[]>([]);
+	const [eightContent, setEightContent] = useState("");
+
+	const onLetterAdd = (letter: string) => {
+		console.log("on letter add", letter);
+		setEightContent(prev => prev + letter);
+	}
 
 	const onToggle = (id: number, checked: boolean) => {
 		const shouldBeAddedToActiveList =
@@ -38,19 +46,19 @@ function App() {
 	return (
 		<div className="container">
 
-			<BarContext.Provider value={{onToggle}}>
+			<BarContext.Provider value={{onToggle, eightContent, onLetterAdd}}>
 				<TogglesBar />
+			
+				<hr className="line" />
+
+				<div className="deck">
+					{activeToggles.map((id) => (
+						<Letter key={`toggle${id}`} id={id} 
+							name={getComponentNameById(id)}
+						/>
+					))}
+				</div>
 			</BarContext.Provider>
-
-			<hr className="line" />
-
-			<div className="deck">
-				{activeToggles.map((id) => (
-					<Letter key={`toggle${id}`} id={id} 
-						name={getComponentNameById(id)}
-					/>
-				))}
-			</div>
 		</div>
 	);
 }
