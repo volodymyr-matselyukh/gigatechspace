@@ -1,111 +1,102 @@
-import { useEffect, useRef, useState, useContext } from "react";
+import { useContext, useRef, useState } from "react";
 import useAxios from "../api/agent";
-import { LetterResponse } from "../models/LetterResponse";
 import { BarContext, BarContextType } from "../components/App";
 import { LetterItem } from "../models/LetterItem";
+import { LetterResponse } from "../models/LetterResponse";
 
 type Props = {
-	id: number;
+  id: number;
 };
 
 const useContentGenerator = ({ id }: Props) => {
-	const missingLetterChar = "*";
-	const [letters, setLetters] = useState<LetterItem[]>([]);
-	const barContext = useContext<BarContextType | null>(BarContext);
+  const missingLetterChar = "*";
+  const [letters, setLetters] = useState<LetterItem[]>([]);
+  const barContext = useContext<BarContextType | null>(BarContext);
 
-	const lastLetterIndex = useRef<number | null>();
-	const intervalId = useRef<number | null>();
+  const lastLetterIndex = useRef<number | null>();
 
-	const requests = useAxios();
+  const requests = useAxios();
 
-	useEffect(() => {
-		if (id === 7) {
-			return;
-		}
+  const intervalId = useRef<number | null>();
 
-		intervalId.current = window.setInterval(async () => {
-			//try {
+  const startTimer = () => {
+    intervalId.current = window.setInterval(async () => {
+      try {
+        const response: LetterResponse = await requests.get(`/letters/${id}`);
+        console.log(`response for toggle ${id}`, response);
 
-				try {
-					const response: LetterResponse = await requests.get(
-						`/letters/${id}`
-					);
-					console.log(`response for toggle ${id}`, response);
+        fillGapIfNeeded(response.index);
 
-					fillGapIfNeeded(response.letter_index);
+        if (lastLetterIndex.current === response.index) {
+          return;
+        }
 
-					if (lastLetterIndex.current === response.letter_index) {
-						return;
-					}
+        lastLetterIndex.current = response.index;
 
-					lastLetterIndex.current = response.letter_index;
+        setLetters((prev) => {
+          const newArray: LetterItem[] = [
+            ...prev,
+            {
+              index: response.index,
+              letter: response.letter,
+              type: "Ok",
+            },
+          ];
 
+          return getSlicedArray(newArray);
+        });
 
-					setLetters(prev => {
-						const newArray: LetterItem[] = [...prev,
-						{
-							letter: response.letter,
-							type: "Ok"
-						}];
+        barContext?.onLetterAdd(response.letter);
+      } catch {
+        const errorLetterIndex = Math.floor(Math.random() * 1000000);
+        lastLetterIndex.current = errorLetterIndex;
+        setLetters((prev) => {
+          const newArray: LetterItem[] = [
+            ...prev,
+            {
+              letter: missingLetterChar,
+              type: "Error",
+              index: errorLetterIndex,
+            },
+          ];
 
-						return getSlicedArray(newArray);
-					});
+          return getSlicedArray(newArray);
+        });
+      }
+    }, 2000);
+  };
 
-					barContext?.onLetterAdd(response.letter);
-				} catch {
-					setLetters(prev => {
-						const newArray: LetterItem[] = [...prev,
-						{
-							letter: missingLetterChar,
-							type: "Error"
-						}];
+  const destroyTimer = () => {
+    if (intervalId.current) {
+      clearInterval(intervalId.current);
+    }
+  };
 
-						return getSlicedArray(newArray);
-					});
-				}
+  const getSlicedArray = (arr: LetterItem[]) => {
+    return arr.slice(-30);
+  };
 
+  const fillGapIfNeeded = (last_letter_index: number) => {
+    if (
+      lastLetterIndex.current &&
+      lastLetterIndex.current + 1 < last_letter_index
+    ) {
+      const numberOfcharsToInject =
+        last_letter_index - lastLetterIndex.current - 1;
 
-			// } catch (e) {
-			// 	console.error("error", e);
+      const maskToInject: LetterItem[] = missingLetterChar
+        .repeat(numberOfcharsToInject)
+        .split("")
+        .map((c) => ({
+          letter: missingLetterChar,
+          type: "Ok",
+          index: Math.floor(Math.random() * 1000000),
+        }));
 
+      setLetters((prev) => [...prev, ...maskToInject]);
+    }
+  };
 
-
-			// 	setLetters(prev => getSlicedArray([...prev, {
-			// 		letter: missingLetterChar,
-			// 		type: "Error"
-			// 	}]));
-			// }
-
-		}, 2000);
-
-
-		const getContentForEightComponent = () => {
-
-		}
-
-		return () => {
-			if (intervalId.current) {
-				clearInterval(intervalId.current as number);
-			}
-		};
-	}, []);
-
-	const getSlicedArray = (arr: LetterItem[]) => {
-		return arr.slice(-30);
-	}
-
-	const fillGapIfNeeded = (last_letter_index: number) => {
-		if (lastLetterIndex.current && lastLetterIndex.current + 1 < last_letter_index) {
-			const numberOfcharsToInject = last_letter_index - lastLetterIndex.current - 1;
-			const maskToInject: LetterItem[] = missingLetterChar.repeat(numberOfcharsToInject).split('').map(c => ({
-				letter: missingLetterChar,
-				type: "Ok"
-			}));
-
-			setLetters(prev => [...prev, ...maskToInject]);
-		}
-	}
-
-	return letters;
-}
-export default useContentGenerator
+  return { letters, startTimer, destroyTimer };
+};
+export default useContentGenerator;

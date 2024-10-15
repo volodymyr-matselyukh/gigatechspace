@@ -1,4 +1,4 @@
 export interface LetterResponse {
-	letter: string,
-	letter_index: number
+  letter: string;
+  index: number;
 }

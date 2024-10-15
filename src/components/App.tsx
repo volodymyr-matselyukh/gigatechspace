@@ -1,66 +1,60 @@
-import { createContext, useEffect, useState } from "react";
+import { createContext, useState } from "react";
 import "../styles/main.css";
-import TogglesBar from "./TogglesBar";
-import Letter from "./Letter";
 import { getComponentNameById } from "../utils/cardNameUtil";
+import Card from "./Card";
+import TogglesBar from "./TogglesBar";
 
 export interface BarContextType {
-	onToggle: (id: number, checked: boolean) => void;
-	eightContent: string;
-	onLetterAdd: any
+  onToggle: (id: number, checked: boolean) => void;
+  eightContent: string;
+  onLetterAdd: any;
 }
 
 export const BarContext = createContext<BarContextType | null>(null);
 
 function App() {
-	const [activeToggles, setActiveToggles] = useState<number[]>([]);
-	const [eightContent, setEightContent] = useState("");
+  const [activeToggles, setActiveToggles] = useState<number[]>([]);
+  const [eightContent, setEightContent] = useState("");
 
-	const onLetterAdd = (letter: string) => {
-		console.log("on letter add", letter);
-		setEightContent(prev => prev + letter);
-	}
+  const onLetterAdd = (letter: string) => {
+    console.log("on letter add", letter);
+    setEightContent((prev) => prev + letter);
+  };
 
-	const onToggle = (id: number, checked: boolean) => {
-		const shouldBeAddedToActiveList =
-			checked && !activeToggles.includes(id);
+  const onToggle = (id: number, checked: boolean) => {
+    const shouldBeAddedToActiveList = checked && !activeToggles.includes(id);
 
-		if (shouldBeAddedToActiveList) {
-			setActiveToggles((prev: number[]) => [...prev, id]);
+    if (shouldBeAddedToActiveList) {
+      setActiveToggles((prev: number[]) => [...prev, id]);
 
-			return;
-		}
+      return;
+    }
 
-		const shouldBeRemovedFromActiveList =
-			!checked && activeToggles.includes(id);
+    const shouldBeRemovedFromActiveList =
+      !checked && activeToggles.includes(id);
 
-		if (shouldBeRemovedFromActiveList) {
-			setActiveToggles((prev: number[]) =>
-				prev.filter((item) => item !== id)
-			);
+    if (shouldBeRemovedFromActiveList) {
+      setActiveToggles((prev: number[]) => prev.filter((item) => item !== id));
 
-			return;
-		}
-	};
+      return null;
+    }
+  };
 
-	return (
-		<div className="container">
+  return (
+    <div className="container">
+      <BarContext.Provider value={{ onToggle, eightContent, onLetterAdd }}>
+        <TogglesBar />
 
-			<BarContext.Provider value={{onToggle, eightContent, onLetterAdd}}>
-				<TogglesBar />
-			
-				<hr className="line" />
+        <hr className="line" />
 
-				<div className="deck">
-					{activeToggles.map((id) => (
-						<Letter key={`toggle${id}`} id={id} 
-							name={getComponentNameById(id)}
-						/>
-					))}
-				</div>
-			</BarContext.Provider>
-		</div>
-	);
+        <div className="deck">
+          {activeToggles.map((id) => (
+            <Card key={`toggle${id}`} id={id} name={getComponentNameById(id)} />
+          ))}
+        </div>
+      </BarContext.Provider>
+    </div>
+  );
 }
 
 export default App;

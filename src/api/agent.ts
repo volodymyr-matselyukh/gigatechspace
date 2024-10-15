@@ -4,7 +4,8 @@ import { useRef } from "react";
 export default function useAxios() {
 	
 	const instance = useRef(axios.create({
-		baseURL: "http://rekrutacjaweb.gigatechspace.net/"
+		//baseURL: "https://navirego-interview-mc3narrsb-volodymyr-matselyukh.vercel.app/api/"
+		baseURL: "https://navirego-interview.vercel.app/api/"
 	}));
 
 	// instance.current.interceptors.response.use(null, async (error: AxiosError) => {
