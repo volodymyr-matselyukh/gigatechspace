@@ -5,7 +5,8 @@ export default function useAxios() {
 	
 	const instance = useRef(axios.create({
 		//baseURL: "https://navirego-interview-mc3narrsb-volodymyr-matselyukh.vercel.app/api/"
-		baseURL: "https://navirego-interview.vercel.app/api/"
+		//baseURL: "https://navirego-interview.vercel.app/api/"
+		baseURL: "http://localhost:8080/api/"
 	}));
 
 	// instance.current.interceptors.response.use(null, async (error: AxiosError) => {
